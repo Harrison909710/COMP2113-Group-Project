@@ -1,0 +1,3 @@
+Alice 120
+Bob 100
+Chris 90
