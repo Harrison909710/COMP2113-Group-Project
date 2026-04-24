@@ -151,7 +151,7 @@ void displayLeaderboard()
     }
 }
 
-void saveGameState(Player p, Floor f)
+void saveGameState(const Player& p, const Floor& f)
 {
     ofstream fout("save.txt");
 
@@ -163,52 +163,50 @@ void saveGameState(Player p, Floor f)
 
     fout << p.name << endl;
     fout << p.hp << " "
+         << p.maxHp << " "
          << p.score << " "
-         << p.hints << " "
-         << p.skipTokens << " "
-         << p.revealTokens << " "
-         << p.freezeTokens << " "
-         << p.bandages << endl;
+         << p.currentFloor << " "
+         << p.wrongGuesses << " "
+         << p.freezeActive << " "
+         << p.freezeSecondsLeft << endl;
 
     fout << f.floorNumber << " "
-         << f.roomIndex << " "
-         << f.difficulty << endl;
+         << f.startX << " "
+         << f.startY << " "
+         << f.hasTreasure << endl;
 
     fout.close();
     cout << "Game saved successfully." << endl;
 }
 
-Player loadGameState()
+bool loadGameState(Player& p, Floor& f)
 {
-    Player p;
     ifstream fin("save.txt");
 
     if (!fin.is_open())
     {
         cout << "Error: cannot open save.txt" << endl;
-        return p;
+        return false;
     }
 
     getline(fin, p.name);
 
     fin >> p.hp
+        >> p.maxHp
         >> p.score
-        >> p.hints
-        >> p.skipTokens
-        >> p.revealTokens
-        >> p.freezeTokens
-        >> p.bandages;
+        >> p.currentFloor
+        >> p.wrongGuesses
+        >> p.freezeActive
+        >> p.freezeSecondsLeft;
 
-    int floorNumber, roomIndex, difficulty;
-    fin >> floorNumber >> roomIndex >> difficulty;
-
-    p.currentFloor = floorNumber;
-    p.currentRoom = roomIndex;
-    p.difficulty = difficulty;
+    fin >> f.floorNumber
+        >> f.startX
+        >> f.startY
+        >> f.hasTreasure;
 
     fin.close();
     cout << "Game loaded successfully." << endl;
-    return p;
+    return true;
 }
 
 bool hasSaveFile()
