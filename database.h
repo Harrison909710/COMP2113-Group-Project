@@ -19,12 +19,12 @@ vector<string> loadWords(string filename);
 void initializeWordDatabase();
 string getRandomWord(int difficulty);
 
-void saveLeaderboard(string name, int score);
 vector<ScoreEntry> loadLeaderboard();
+void saveLeaderboard(string name, int score);
 void displayLeaderboard();
 
-void saveGameState(Player p, Floor f);
-Player loadGameState();
+void saveGameState(const Player& p, const Floor& f);
+bool loadGameState(Player& p, Floor& f);
 
 bool hasSaveFile();
 
