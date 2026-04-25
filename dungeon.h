@@ -41,6 +41,11 @@ struct Room {
     int difficulty;
     int timeLimit = 0;
     bool isCleared = false;
+    std::string hint1;
+    std::string hint2;
+    std::string hint3;
+    bool completed = false;
+
 };
 
 struct Floor {

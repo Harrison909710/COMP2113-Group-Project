@@ -1,3 +1,6 @@
+#ifndef PLAYER_H   
+#define PLAYER_H
+
 #include <string>
 #include <vector>
  
@@ -24,14 +27,6 @@ struct Item {
 };
  
 
-struct Room {
-    std::string answer;       
-    std::string hint1;        
-    std::string hint2;        
-    std::string hint3;        
-    bool completed = false;
-};
- 
 struct Player {
     std::string name;
  
@@ -82,5 +77,9 @@ bool hasItem(const Player& p, ItemType item);
 void displayStatus(const Player& p);
  
 void displayInventory(const Player& p);
+
+void useHint(Player& p, Room& r, int tier);
+
+#endif
  
 

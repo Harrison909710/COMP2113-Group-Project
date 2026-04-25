@@ -123,10 +123,10 @@ void onPuzzleSolved(Player& p) {
     int bonus = 100 + (p.hp * 10);
     p.score += bonus;
     p.wrongGuesses = 0;
-    p.currentFloor++;
     std::cout << "  [CORRECT!] +" << bonus << " points. "
               << "Score: " << p.score << "\n";
 }
+
 
 void onWrongGuess(Player& p) {
     p.wrongGuesses++;

@@ -336,8 +336,8 @@ void runBossFight(Player& p, Room& bossRoom, PuzzleEngine& engine) {
 }
 
 // =================== Hint Generation ===================
-Player::Room makeHintRoom(const string& answer) {
-    Player::Room hr;
+Room makeHintRoom(const string& answer) {
+    Room hr;
     hr.answer = answer;
     hr.hint1 = "Vague: The word starts with '" + string(1, answer[0]) + "'";
     hr.hint2 = "Medium: The word has " + to_string(answer.length()) + " letters.";
