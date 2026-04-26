@@ -1,6 +1,7 @@
 #ifndef DUNGEON_H
 #define DUNGEON_H
 
+#include "puzzle_engine.h"
 #include <vector>
 #include <string>
 
@@ -44,8 +45,6 @@ struct Room {
     std::string hint1;
     std::string hint2;
     std::string hint3;
-    bool completed = false;
-
 };
 
 struct Floor {
@@ -77,6 +76,8 @@ private:
 
     void initializeMap(Map& m);
     void placeElements(Floor& f);
+
+    PuzzleEngine engine;
 };
 
 #endif

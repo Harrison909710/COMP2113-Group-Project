@@ -1,9 +1,11 @@
 #include "dungeon.h"
+#include "database.h"
+#include "puzzle_engine.h"
 #include <iostream>
 #include <algorithm>
 #include <ctime>
 #include <cstdlib>
-#include <conio.h> // For _getch()
+#include <conio.h>
 using namespace std;
 
 DungeonGenerator::DungeonGenerator(int w, int h) : defaultWidth(w), defaultHeight(h) {
@@ -16,6 +18,8 @@ Floor DungeonGenerator::generateFloor(int floorNumber, int chosenDifficulty) {
     f.layout.width = defaultWidth;
     f.layout.height = defaultHeight;
 
+    f.hasTreasure = (floorNumber < 10);
+
     initializeMap(f.layout);
     f.startX = defaultWidth / 2;
     f.startY = defaultHeight / 2;   // start in middle grid
@@ -26,14 +30,14 @@ Floor DungeonGenerator::generateFloor(int floorNumber, int chosenDifficulty) {
         // 1. Guaranteed Treasure Room
         f.rooms.push_back(generateRoom(floorNumber, 99, RoomType::TREASURE, chosenDifficulty));
 
-        // 2. Base Puzzle Rooms (e.g., Simple: 2, Normal: 3, Hard: 3)
-        int puzzleCount = (chosenDifficulty == 0) ? 2 : 3;
+        // 2. Base Puzzle Rooms (e.g., Easy: 2, Normal: 3, Hard: 3)
+        int puzzleCount = (chosenDifficulty == 1) ? 2 : 3;
         for (int i = 1; i <= puzzleCount; i++) {
             f.rooms.push_back(generateRoom(floorNumber, i, pickRoomType(floorNumber, i), chosenDifficulty));
         }
 
         // 3. Hard Mode Extra Room: 80% Puzzle, 20% Treasure
-        if (chosenDifficulty == 2) {
+        if (chosenDifficulty == 3) {
             RoomType extraType = (rand() % 100 < 20) ? RoomType::TREASURE : pickRoomType(floorNumber, 100);
                 f.rooms.push_back(generateRoom(floorNumber, 100, extraType, chosenDifficulty));
         }
@@ -50,37 +54,37 @@ Room DungeonGenerator::generateRoom(int floorNumber, int roomID, RoomType type, 
     r.isCleared = false;
     r.difficulty = chosenDifficulty;
 
+    if (type == RoomType::BOSS) {
+        r.category = "Boss";
+        int bossLevel = (chosenDifficulty < 3) ? (chosenDifficulty + 1) : 3; // give one boss word, difficulty = chosen + 1 if hard still = 3
+        r.answer = getRandomWord(bossLevel);
+        r.puzzleData = "BOSS_FIGHT";
+        return r;
+    }
+
     if (type == RoomType::TREASURE) {
         r.category = "Treasure";
-        // Directly call Person 4's database to get an item name
-        // r.puzzleData = Database::getRandomItem(chosenDifficulty);
-        r.puzzleData = "A mysterious item";
         r.answer = "";
+        r.puzzleData = "TREASURE";
+        return r;
     }
-    else if (type == RoomType::BOSS) {
-        r.category = "Boss";
-        r.puzzleData = "ULTIMATE PUZZLE";
-        r.answer = "CHAMPION";
-    }
-    else {
+
+    if (type == RoomType::RIDDLE) {
+        r.category = "Riddle";
+        r.answer = "";
+        r.puzzleData = "RIDDLE";
+    } else {
         r.category = "Puzzle";
-        // 1. Get raw word from Person 4
-        // string rawWord = Database::getRandomWord(chosenDifficulty);
-
-        // 2. Set answer as the raw word
-        // r.answer = rawWord;
-
-        // 3. Call Person 1's functions based on type to fill puzzleData
-        /*
-        switch(type) {
-            case RoomType::ANAGRAM: r.puzzleData = PuzzleEngine::scrambleWord(rawWord); break;
-            case RoomType::CAESAR:  r.puzzleData = PuzzleEngine::applyCaesarCipher(rawWord, 3); break;
-            // ... and so on for all 6 types
-        }
-        */
-        r.puzzleData = "SCRAMBLED_WORD_HERE"; // PLACEHOLDER
-        r.answer = "WORD";                     // PLACEHOLDER
+        r.answer = getRandomWord(chosenDifficulty);
+        r.puzzleData = "PUZZLE";
     }
+
+    if (type == RoomType::SPEED_ROUND) {
+        if (chosenDifficulty == 1) r.timeLimit = 120;
+        else if (chosenDifficulty == 2) r.timeLimit = 90;
+        else r.timeLimit = 60;
+    }
+
     return r;
 }
 
@@ -135,62 +139,45 @@ bool DungeonGenerator::isBossFloor(int floorNumber) {
 }
 
 void DungeonGenerator::spawnStairs(Floor& f) {
-    if (f.floorNumber == 10) {
-        // Person 5 will detect this and trigger Win Screen / Score Calculation
-        std::cout << "DUNGEON CLEAR! Preparing final score..." << std::endl;
-        return;
+    if (f.floorNumber < 10) {
+        f.layout.grid[f.startY][f.startX] = TileType::STAIRS;
     }
-    // Normal behavior: spawn stairs at center
-    f.layout.grid[f.startY][f.startX] = TileType::STAIRS;
 }
 
 
 void DungeonGenerator::updateRoomStatus(Floor& f, int x, int y) {
     Room* r = getRoomAt(f, x, y);
     if (r) {
-        r->isCleared = true; // This makes the room "disappear" from the map
+        r->isCleared = true;
+        f.layout.grid[y][x] = TileType::FLOOR;
     }
 
-    // Existing logic to check all rooms
     bool allCleared = true;
     for (const auto& rm : f.rooms) {
-        if (!rm.isCleared) {
+        if (rm.type != RoomType::TREASURE && !rm.isCleared) {
             allCleared = false;
             break;
         }
     }
 
     if (allCleared) {
-        spawnStairs(f); // Automatically spawn stairs at (5,5)
+        spawnStairs(f);
     }
 }
 
-// Returns true if the move was successful (not a wall)
 bool DungeonGenerator::handleMove(Floor& f, int& pX, int& pY, int moveX, int moveY) {
     int nextX = pX + moveX;
     int nextY = pY + moveY;
 
-    // 1. Boundary and Wall check
     if (nextX < 0 || nextX >= f.layout.width || nextY < 0 || nextY >= f.layout.height) return false;
     if (f.layout.grid[nextY][nextX] == TileType::WALL) return false;
 
-    // 2. If it's not a wall, update player position
     pX = nextX;
     pY = nextY;
 
-    // 3. Check for Room Interaction
-    if (f.layout.grid[pY][pX] == TileType::ROOM_TILE) {
-        Room* r = getRoomAt(f, pY, pX);
-        if (r && !r->isCleared) {
-            // Here the logic returns to Main/UI to start the puzzle
-            // The UI person will see pX, pY is on a ROOM_TILE and trigger the screen
-            std::cout << "Entering " << r->category << " ID: " << r->roomID << std::endl;
-        }
-    }
-
-    // 4. Check for Stairs Interaction
-    if (f.layout.grid[pY][pX] == TileType::STAIRS) {
-        std::cout << "Climbing to next floor..." << std::endl;
+    Room* r = getRoomAt(f, pX, pY);
+    if (r && !r->isCleared) {
+        updateRoomStatus(f, pX, pY);
     }
 
     return true;
@@ -201,52 +188,4 @@ Room* DungeonGenerator::getRoomAt(Floor& f, int x, int y) {
         if (r.x == x && r.y == y) return &r;
     }
     return nullptr;
-}
-
-int main() {
-    DungeonGenerator generator(11, 11);
-    int pX, pY, floorNum = 1, difficulty = 1;
-
-    // Initialize Floor
-    Floor currentFloor = generator.generateFloor(floorNum, difficulty);
-    pX = currentFloor.startX;
-    pY = currentFloor.startY;
-
-    bool isRunning = true;
-    while (isRunning) {
-        // 1. New WASD Input (Replaced the static dx=1)
-        int dx = 0, dy = 0;
-        char input = _getch(); // Catch keyboard input
-
-        if (input == 'w' || input == 'W') dy = -1;
-        else if (input == 's' || input == 'S') dy = 1;
-        else if (input == 'a' || input == 'A') dx = -1;
-        else if (input == 'd' || input == 'D') dx = 1;
-        else if (input == 27) break; // ESC key to quit
-
-        // 2. Original handleMove logic (STAYED THE SAME)
-        if (generator.handleMove(currentFloor, pX, pY, dx, dy)) {
-
-            // 3. Original Room Interaction (STAYED THE SAME)
-            Room* r = generator.getRoomAt(currentFloor, pX, pY);
-            if (r && !r->isCleared) {
-                generator.updateRoomStatus(currentFloor, pX, pY);
-            }
-
-            // 4. Original Stairs Check (STAYED THE SAME)
-            if (currentFloor.layout.grid[pY][pX] == TileType::STAIRS) {
-                if (floorNum >= 10) isRunning = false;
-                else {
-                    floorNum++;
-                    currentFloor = generator.generateFloor(floorNum, difficulty);
-                    pX = currentFloor.startX;
-                    pY = currentFloor.startY;
-                }
-            }
-        }
-
-        // 5. Original Failsafe (STAYED THE SAME)
-        if (floorNum > 10) break;
-    }
-    return 0;
 }
