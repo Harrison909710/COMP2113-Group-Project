@@ -1,11 +1,32 @@
 #include "ui.h"
 #include "database.h"   // for save/load, leaderboard, words
+#include "dungeon.h"   // for puzzle room answer
 #include <iostream>
-#include <conio.h>      // _getch() for input
 #include <chrono>
 #include <thread>
 #include <algorithm>
 #include <cctype>
+//implement GETCH() for both windows and linux
+#ifdef _WIN32
+    #include <conio.h>
+    #define GETCH _getch
+#else
+    #include <termios.h>
+    #include <unistd.h>
+    #include <stdio.h>
+    inline int getch_linux() {
+        struct termios oldt, newt;
+        int ch;
+        tcgetattr(STDIN_FILENO, &oldt);
+        newt = oldt;
+        newt.c_lflag &= ~(ICANON | ECHO);
+        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+        ch = getchar();
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+        return ch;
+    }
+    #define GETCH getch_linux
+#endif
 
 using namespace std;
 
@@ -69,7 +90,7 @@ void gameLoop(Player& p, DungeonGenerator& gen, int difficulty) {
         // Get movement input
         int dx = 0, dy = 0;
         cout << "Use WASD to move (or 'i' for inventory, 'h' for hint, ESC to quit): ";
-        char input = _getch();
+        char input = GETCH();
         cout << input << "\n";
 
         if (input == 27) break; // ESC
@@ -326,10 +347,10 @@ void runBossFight(Player& p, Room& bossRoom, PuzzleEngine& engine) {
     if (!runRiddlePuzzle(p, engine)) { onWrongGuess(p); return; }
     // Phase 2: Caesar cipher
     cout << "Phase 2: Caesar Cipher\n";
-    if (!runCaesarPuzzle(p, "CHAMPION", engine)) { onWrongGuess(p); return; }
+    if (!runCaesarPuzzle(p, bossRoom.answer , engine)) { onWrongGuess(p); return; }
     // Phase 3: Anagram
     cout << "Phase 3: Anagram\n";
-    if (!runAnagramPuzzle(p, "CHAMPION", engine)) { onWrongGuess(p); return; }
+    if (!runAnagramPuzzle(p, bossRoom.answer , engine)) { onWrongGuess(p); return; }
     // Victory
     onPuzzleSolved(p);
     bossRoom.isCleared = true;
@@ -371,12 +392,12 @@ void displayRoomDescription(const Room& r) {
 void drawASCII(const string& type) {
     if (type == "title") {
         cout << R"(
- __          __           _    ____  
- \ \        / /          | |  |  _ \ 
+ __          __           _    ____
+ \ \        / /          | |  |  _ \
   \ \  /\  / /__  _ __ __| |  | | | |
    \ \/  \/ / _ \| '__/ _` |  | | | |
     \  /\  / (_) | | | (_| |  | |_| |
-     \/  \/ \___/|_|  \__,_|  |____/ 
+     \/  \/ \___/|_|  \__,_|  |____/
 )" << endl;
     } else if (type == "boss") {
         cout << R"(

@@ -1,11 +1,11 @@
 #include "dungeon.h"
-#include "database.h"
-#include "puzzle_engine.h"
+#include "database.h" // for randomized words
+#include "puzzle_engine.h" // for puzzle data
 #include <iostream>
 #include <algorithm>
 #include <ctime>
 #include <cstdlib>
-#include <conio.h>
+
 using namespace std;
 
 DungeonGenerator::DungeonGenerator(int w, int h) : defaultWidth(w), defaultHeight(h) {
@@ -177,7 +177,9 @@ bool DungeonGenerator::handleMove(Floor& f, int& pX, int& pY, int moveX, int mov
 
     Room* r = getRoomAt(f, pX, pY);
     if (r && !r->isCleared) {
-        updateRoomStatus(f, pX, pY);
+        if (r->type == RoomType::TREASURE || r->type == RoomType::BOSS) {
+            updateRoomStatus(f, pX, pY);
+        }
     }
 
     return true;
