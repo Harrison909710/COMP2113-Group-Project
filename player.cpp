@@ -1,4 +1,5 @@
 #include "player.h"
+#include "dungeon.h"
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -111,8 +112,6 @@ bool hasItem(const Player& p, ItemType item) {
 
 void applyReward(Player& p, const Item& reward) {
     p.inventory.push_back(reward);
-    std::cout << "  [REWARD] You found: " << reward.name
-              << " — " << reward.description << "\n";
 }
 
 bool isDead(const Player& p) {

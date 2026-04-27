@@ -34,10 +34,11 @@ bool runWordChainPuzzle(Player& p, const std::string& answer, PuzzleEngine& engi
 bool runSpeedRound(Player& p, const std::string& answer, PuzzleEngine& engine, int timeLimit);
 
 // Hint generation (fills a Player::Room)
-Player::Room makeHintRoom(const std::string& answer);
+Room makeHintRoom(const std::string& answer);
 
 // Save/Load extension for inventory
 void saveFullGame(const Player& p, const Floor& f);
 bool loadFullGame(Player& p, Floor& f, DungeonGenerator& gen, int difficulty);
 
+void pauseForUser();
 #endif

@@ -175,13 +175,6 @@ bool DungeonGenerator::handleMove(Floor& f, int& pX, int& pY, int moveX, int mov
     pX = nextX;
     pY = nextY;
 
-    Room* r = getRoomAt(f, pX, pY);
-    if (r && !r->isCleared) {
-        if (r->type == RoomType::TREASURE || r->type == RoomType::BOSS) {
-            updateRoomStatus(f, pX, pY);
-        }
-    }
-
     return true;
 }
 

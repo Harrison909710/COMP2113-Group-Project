@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
  
+class Room;
+
 enum class ItemType {
     DICTIONARY_SCROLL,  
     SKIP_TOKEN,         

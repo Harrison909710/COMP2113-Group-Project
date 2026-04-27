@@ -1,6 +1,7 @@
 #include "ui.h"
 #include "database.h"   // for save/load, leaderboard, words
 #include "dungeon.h"   // for puzzle room answer
+#include <fstream>
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -54,10 +55,14 @@ void runGame(Player& player, int difficulty) {
     DungeonGenerator gen(11, 11);
     Player localPlayer = createPlayer(player.name, difficulty);
 
+    Floor tempFloor;
+
     // Check if we are loading a saved game
     if (difficulty == -1) { // -1 used as a flag for "Continue"
-        if (!loadFullGame(localPlayer, gen, difficulty)) {
+        if (!loadFullGame(localPlayer, tempFloor, gen, difficulty)) {
             cout << "No save file found. Starting a new game.\n";
+            cout << "Press any key to continue...";
+            GETCH();
             gameLoop(localPlayer, gen, 1); // fallback
             return;
         }
@@ -70,6 +75,40 @@ void runGame(Player& player, int difficulty) {
     // After game over, update leaderboard and display
     saveLeaderboard(localPlayer.name, calculateScore(localPlayer));
     displayLeaderboard();
+}
+
+void displayMap(const Floor& f, int playerX, int playerY, DungeonGenerator& gen) {
+    cout << "\n--- DUNGEON MAP ---\n";
+    for (int y = 0; y < 11; ++y) {
+        for (int x = 0; x < 11; ++x) {
+            if (x == playerX && y == playerY) {
+                cout << "@ "; 
+            } else {
+                Room* r = gen.getRoomAt(const_cast<Floor&>(f), x, y);
+                if (r != nullptr) {
+                    if (r->isCleared) {
+                        cout << ". "; 
+                    } else {
+                        switch (r->type) {
+                            case RoomType::TREASURE: cout << "T "; break;
+                            case RoomType::BOSS:     cout << "B "; break;
+                            default:                 cout << "P "; break; 
+                        }
+                    }
+                } else {
+                    if (f.layout.grid[y][x] == TileType::STAIRS) {
+                        cout << "S "; 
+                    } else if (f.layout.grid[y][x] == TileType::WALL) {
+                        cout << "# "; 
+                    } else {
+                        cout << ". "; 
+                    }
+                }
+            }
+        }
+        cout << "\n";
+    }
+    cout << "-------------------\n";
 }
 
 // =================== Main Game Loop ===================
@@ -87,7 +126,7 @@ void gameLoop(Player& p, DungeonGenerator& gen, int difficulty) {
         displayFloorInfo(p.currentFloor);
         displayHPBar(p);
 
-        // Get movement input
+        displayMap(currentFloor, pX, pY, gen); 
         int dx = 0, dy = 0;
         cout << "Use WASD to move (or 'i' for inventory, 'h' for hint, ESC to quit): ";
         char input = GETCH();
@@ -97,6 +136,8 @@ void gameLoop(Player& p, DungeonGenerator& gen, int difficulty) {
 
         if (input == 'i' || input == 'I') {
             displayInventory(p);
+            cout << "\nPress any key to continue...";
+            GETCH(); 
             continue;
         }
         if (input == 'h' || input == 'H') {
@@ -120,17 +161,35 @@ void gameLoop(Player& p, DungeonGenerator& gen, int difficulty) {
         Room* roomPtr = gen.getRoomAt(currentFloor, pX, pY);
         if (roomPtr && !roomPtr->isCleared) {
             displayRoomDescription(*roomPtr);
+    
             if (roomPtr->type == RoomType::TREASURE) {
                 runTreasure(p);
+                gen.updateRoomStatus(currentFloor, pX, pY); 
             }
             else if (roomPtr->type == RoomType::BOSS) {
                 runBossFight(p, *roomPtr, puzzleEngine);
+                if (roomPtr->isCleared) {
+                    gen.updateRoomStatus(currentFloor, pX, pY);
+                }
             }
             else {
                 bool solved = runPuzzle(p, *roomPtr, puzzleEngine);
+                
+                if (cin.fail() || cin.rdbuf()->in_avail() > 0 || true) {
+                    cin.clear();
+                    cin.ignore(1000, '\n');
+                }
+                
                 if (solved) {
+                    cout << "\n>>> The path is clear. <<<\n";
+                    gen.updateRoomStatus(currentFloor, pX, pY);
+                } else {
+                    cout << "\n>>> You take damage. <<<\n";
                     gen.updateRoomStatus(currentFloor, pX, pY);
                 }
+                
+                cout << "Press any key to continue...";
+                GETCH();
             }
         }
 
@@ -141,6 +200,12 @@ void gameLoop(Player& p, DungeonGenerator& gen, int difficulty) {
                 break;
             }
             p.currentFloor++;
+            cout << "\n========================================" << endl;
+            cout << "   Floor cleared!" << endl;
+            cout << "   Descending to Floor " << p.currentFloor << "..." << endl;
+            cout << "========================================" << endl;
+            cout << "Press any key to continue...";
+            GETCH(); 
             currentFloor = gen.generateFloor(p.currentFloor, difficulty);
             pX = currentFloor.startX;
             pY = currentFloor.startY;
@@ -185,50 +250,131 @@ bool runPuzzle(Player& p, Room& dRoom, PuzzleEngine& engine) {
     }
 }
 
+void handleInventoryInput(Player& p) {
+    displayInventory(p); 
+    if (p.inventory.empty()) {
+        cout << "Press any key to return...";
+        GETCH();
+        return;
+    }
+
+    cout << "Select item to use (1-" << p.inventory.size() << ") or 0 to back: ";
+    
+    int choice;
+    if (cin >> choice) {
+        cin.ignore(1000, '\n'); 
+        if (choice > 0 && choice <= (int)p.inventory.size()) {
+            useItem(p, p.inventory[choice - 1].type);
+            cout << "Press any key to continue...";
+            GETCH();
+        }
+    } else {
+        cin.clear();
+        cin.ignore(1000, '\n');
+    }
+}
+
 // =================== Individual Puzzles ===================
 bool runAnagramPuzzle(Player& p, const string& answer, PuzzleEngine& engine) {
     string scrambled = engine.generateAnagram(answer);
-    cout << "Unscramble: " << scrambled << "\n";
-    string guess;
-    cout << "Your guess: ";
-    cin >> guess;
-    if (engine.validateAnagram(answer, guess) && guess == answer) {
-        onPuzzleSolved(p);
-        return true;
-    } else {
-        onWrongGuess(p);
-        return false;
+    while (true) {
+        cout << "Unscramble: " << scrambled << "\n";
+        cout << "Actions: [A] Answer  [I] Inventory  [H] Hint\n";
+        cout << "Choice: ";
+        char choice = GETCH();
+        cout << choice << "\n";
+
+        if (choice == 'i' || choice == 'I') {
+            handleInventoryInput(p);
+            continue;
+        }
+        if (choice == 'h' || choice == 'H') {
+            Room tempRoom = makeHintRoom(answer);
+            useHint(p, tempRoom, 1);   
+            continue;
+        }
+        if (choice == 'a' || choice == 'A') {
+            string guess;
+            cout << "Your guess: ";
+            cin >> guess;
+            cin.ignore(1000, '\n');
+            if (engine.validateAnagram(answer, guess) && guess == answer) {
+                onPuzzleSolved(p);
+                return true;
+            } else {
+                onWrongGuess(p);
+                return false;
+            }
+        }
     }
 }
 
 bool runCaesarPuzzle(Player& p, const string& answer, PuzzleEngine& engine) {
     int shift = 3; // fixed shift
     string cipher = engine.caesarCipher(answer, shift, true);
-    cout << "Cipher (shift " << shift << "): " << cipher << "\n";
-    string guess;
-    cout << "Your guess: ";
-    cin >> guess;
-    if (guess == answer) {
-        onPuzzleSolved(p);
-        return true;
-    } else {
-        onWrongGuess(p);
-        return false;
+    while (true) {
+        cout << "Cipher (shift " << shift << "): " << cipher << "\n";
+        cout << "Actions: [A] Answer  [I] Inventory  [H] Hint\n";
+        cout << "Choice: ";
+        char choice = GETCH();
+        cout << choice << "\n";
+
+        if (choice == 'i' || choice == 'I') {
+            handleInventoryInput(p);
+            continue;
+        }
+        if (choice == 'h' || choice == 'H') {
+            Room tempRoom = makeHintRoom(answer);
+            useHint(p, tempRoom, 1);   
+            continue;
+        }
+        if (choice == 'a' || choice == 'A') {
+            string guess;
+            cout << "Your guess: ";
+            cin >> guess;
+            cin.ignore(1000, '\n');
+            if (guess == answer) {
+                onPuzzleSolved(p);
+                return true;
+            } else {
+                onWrongGuess(p);
+                return false;
+            }
+        }
     }
 }
 
 bool runSubstitutionPuzzle(Player& p, const string& answer, PuzzleEngine& engine) {
     string cipher = engine.substitutionCipher(answer);
-    cout << "Substitution cipher: " << cipher << "\n";
-    string guess;
-    cout << "Your guess: ";
-    cin >> guess;
-    if (guess == answer) {
-        onPuzzleSolved(p);
-        return true;
-    } else {
-        onWrongGuess(p);
-        return false;
+    while (true) {
+        cout << "Substitution cipher: " << cipher << "\n";
+        cout << "Actions: [A] Answer  [I] Inventory  [H] Hint\n";
+        cout << "Choice: ";
+        char choice = GETCH();
+        cout << choice << "\n";
+
+        if (choice == 'i' || choice == 'I') {
+            handleInventoryInput(p);
+            continue;
+        }
+        if (choice == 'h' || choice == 'H') {
+            Room tempRoom = makeHintRoom(answer);
+            useHint(p, tempRoom, 1);   
+            continue;
+        }
+        if (choice == 'a' || choice == 'A') {
+            string guess;
+            cout << "Your guess: ";
+            cin >> guess;
+            cin.ignore(1000, '\n');
+            if (guess == answer) {
+                onPuzzleSolved(p);
+                return true;
+            } else {
+                onWrongGuess(p);
+                return false;
+            }
+        }
     }
 }
 
@@ -237,106 +383,203 @@ bool runHangmanPuzzle(Player& p, const string& answer) {
     int wrong = 0;
     string guessedWord(answer.length(), '_');
     string usedLetters;
-    cout << "Hangman! Word length: " << answer.length() << "\n";
-    while (wrong < maxWrong) {
-        cout << "Word: " << guessedWord << "   Wrong: " << wrong << "/" << maxWrong << "\nEnter letter: ";
-        char c;
-        cin >> c;
-        c = tolower(c);
-        if (usedLetters.find(c) != string::npos) {
-            cout << "Already used.\n";
+    while (true) {
+        cout << "Hangman! Word length: " << answer.length() << "\n";
+        cout << "Word: " << guessedWord << "   Wrong: " << wrong << "/" << maxWrong << "\n";
+        cout << "Actions: [G] Guess Letter  [I] Inventory  [H] Hint\n";
+        cout << "Choice: ";
+        char choice = GETCH();
+        cout << choice << "\n";
+
+        if (choice == 'i' || choice == 'I') {
+            handleInventoryInput(p);
             continue;
         }
-        usedLetters += c;
-        bool found = false;
-        for (size_t i = 0; i < answer.length(); ++i) {
-            if (tolower(answer[i]) == c) {
-                guessedWord[i] = answer[i];
-                found = true;
+        if (choice == 'h' || choice == 'H') {
+            Room tempRoom = makeHintRoom(answer);
+            useHint(p, tempRoom, 1);   
+            continue;
+        }
+        if (choice == 'g' || choice == 'G') {
+            cout << "Enter letter: ";
+            char c;
+            cin >> c;
+            cin.ignore(1000, '\n');
+            c = tolower(c);
+
+            if (usedLetters.find(c) != string::npos) {
+                cout << "Already used.\n";
+                continue;
+            }
+            usedLetters += c;
+
+            bool found = false;
+            for (size_t i = 0; i < answer.length(); ++i) {
+                if (tolower(answer[i]) == c) {
+                    guessedWord[i] = answer[i];
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                wrong++;
+            }
+
+            if (guessedWord == answer) {
+                onPuzzleSolved(p);
+                return true;
+            }
+
+            if (wrong >= maxWrong) {
+                cout << "Word was: " << answer << "\n";
+                onWrongGuess(p);
+                return false;
             }
         }
-        if (!found) wrong++;
-        if (guessedWord == answer) {
-            onPuzzleSolved(p);
-            return true;
-        }
     }
-    cout << "Word was: " << answer << "\n";
-    onWrongGuess(p);
-    return false;
 }
 
 bool runRiddlePuzzle(Player& p, PuzzleEngine& engine) {
     auto riddle = engine.getRandomRiddle();
-    cout << "Riddle: " << riddle.question << "\n";
-    string guess;
-    cout << "Answer: ";
-    cin >> guess;
-    if (guess == riddle.answer) {
-        onPuzzleSolved(p);
-        return true;
-    } else {
-        onWrongGuess(p);
-        return false;
+    while (true) {
+        cout << "Riddle: " << riddle.question << "\n";
+        cout << "Actions: [A] Answer  [I] Inventory  [H] Hint\n";
+        cout << "Choice: ";
+        char choice = GETCH();
+        cout << choice << "\n";
+
+        if (choice == 'i' || choice == 'I') {
+            handleInventoryInput(p);
+            continue;
+        }
+        if (choice == 'h' || choice == 'H') {
+            Room tempRoom = makeHintRoom(riddle.answer);
+            useHint(p, tempRoom, 1);   
+            continue;
+        }
+        if (choice == 'a' || choice == 'A') {
+            string guess;
+            cout << "Answer: ";
+            cin >> guess;
+            cin.ignore(1000, '\n');
+            if (guess == riddle.answer) {
+                onPuzzleSolved(p);
+                return true;
+            } else {
+                onWrongGuess(p);
+                return false;
+            }
+        }
     }
 }
 
 bool runWordChainPuzzle(Player& p, const string& answer, PuzzleEngine& engine) {
-    // Simulate: provide start and end word, player must type chain.
-    string start = answer; // use answer as both? Need a proper chain.
-    // For simplicity, we'll use a 3-word chain: start -> middle -> answer
-    string middle = answer; // dummy
-    cout << "Word Chain: " << answer << " -> ??? -> " << answer << "\n";
-    cout << "Enter the middle word (must differ by one letter): ";
-    cin >> middle;
-    vector<string> chain = { answer, middle, answer };
-    if (engine.validateWordChain(chain)) {
-        onPuzzleSolved(p);
-        return true;
-    } else {
-        onWrongGuess(p);
-        return false;
+    while (true) {
+        cout << "Word Chain: " << answer << " -> ??? -> " << answer << "\n";
+        cout << "Actions: [A] Answer  [I] Inventory  [H] Hint\n";
+        cout << "Choice: ";
+        char choice = GETCH();
+        cout << choice << "\n";
+
+        if (choice == 'i' || choice == 'I') {
+            handleInventoryInput(p);
+            continue;
+        }
+        if (choice == 'h' || choice == 'H') {
+            Room tempRoom = makeHintRoom(answer);
+            useHint(p, tempRoom, 1);   
+            continue;
+        }
+        if (choice == 'a' || choice == 'A') {
+            string middle;
+            cout << "Enter the middle word (must differ by one letter): ";
+            cin >> middle;
+            cin.ignore(1000, '\n');
+            vector<string> chain = { answer, middle, answer };
+            if (engine.validateWordChain(chain)) {
+                onPuzzleSolved(p);
+                return true;
+            } else {
+                onWrongGuess(p);
+                return false;
+            }
+        }
     }
 }
 
 bool runSpeedRound(Player& p, const string& answer, PuzzleEngine& engine, int timeLimit) {
-    cout << "Speed Round! You have " << timeLimit << " seconds.\n";
-    engine.startTimer(timeLimit);
     string scrambled = engine.generateAnagram(answer);
-    cout << "Unscramble this word: " << scrambled << "\n";
-    string guess;
     auto start = chrono::steady_clock::now();
-    // non-blocking input simulation: we'll just read with timeout
-    // Because console input is blocking, we can fake by starting a thread.
-    // For simplicity, we'll just read cin and then check time.
-    cout << "Your guess: ";
-    cin >> guess;
-    auto end = chrono::steady_clock::now();
-    if (chrono::duration_cast<chrono::seconds>(end - start).count() <= timeLimit
-        && guess == answer) {
-        onPuzzleSolved(p);
-        return true;
-    } else {
-        onWrongGuess(p);
-        return false;
+
+    while (true) {
+        auto current = chrono::steady_clock::now();
+        int secondsPassed = chrono::duration_cast<chrono::seconds>(current - start).count();
+        int timeLeft = timeLimit - secondsPassed;
+
+        if (timeLeft <= 0) {
+            cout << "Time's up!\n";
+            onWrongGuess(p);
+            return false;
+        }
+
+        cout << "Speed Round! You have " << timeLeft << " seconds.\n";
+        cout << "Unscramble this word: " << scrambled << "\n";
+        cout << "Actions: [A] Answer  [I] Inventory  [H] Hint\n";
+        cout << "Choice: ";
+
+        char choice = GETCH();
+        cout << choice << "\n";
+
+        if (choice == 'i' || choice == 'I') {
+            handleInventoryInput(p);
+            continue;
+        }
+        if (choice == 'h' || choice == 'H') {
+            Room tempRoom = makeHintRoom(answer);
+            useHint(p, tempRoom, 1);
+            continue;
+        }
+        if (choice == 'a' || choice == 'A') {
+            string guess;
+            cout << "Your guess: ";
+            cin >> guess;
+            cin.ignore(1000, '\n');
+
+            auto end = chrono::steady_clock::now();
+            int totalTime = chrono::duration_cast<chrono::seconds>(end - start).count();
+
+            if (totalTime <= timeLimit && guess == answer) {
+                onPuzzleSolved(p);
+                return true;
+            } else {
+                if (totalTime > timeLimit) cout << "Too slow! ";
+                onWrongGuess(p);
+                return false;
+            }
+        }
     }
 }
 
 // =================== Treasure & Boss ===================
 void runTreasure(Player& p) {
-    // Random item reward (all types)
     int idx = rand() % 5;
     ItemType type = static_cast<ItemType>(idx);
     Item reward;
     reward.type = type;
-    switch (type) {
-        case ItemType::DICTIONARY_SCROLL: reward.name = "Dictionary Scroll"; reward.description = "Reveals word category."; break;
-        case ItemType::SKIP_TOKEN: reward.name = "Skip Token"; reward.description = "Skip current room."; break;
-        case ItemType::REVEAL: reward.name = "Reveal"; reward.description = "Shows 2 letters."; break;
-        case ItemType::FREEZE: reward.name = "Freeze"; reward.description = "Freezes timer for 15s."; break;
-        case ItemType::BANDAGE: reward.name = "Bandage"; reward.description = "Restore 2 HP."; break;
-    }
+    
+    if (type == ItemType::DICTIONARY_SCROLL) { reward.name = "Dictionary Scroll"; reward.description = "Reveals word category."; }
+    else if (type == ItemType::SKIP_TOKEN) { reward.name = "Skip Token"; reward.description = "Skip current room."; }
+    else if (type == ItemType::REVEAL) { reward.name = "Reveal"; reward.description = "Shows 2 letters."; }
+    else if (type == ItemType::FREEZE) { reward.name = "Freeze"; reward.description = "Freezes timer."; }
+    else { reward.name = "Bandage"; reward.description = "Restore 2 HP."; }
+
     applyReward(p, reward);
+
+    cout << "\n[TREASURE] You opened a chest!" << endl;
+    cout << "You found: " << reward.name << endl;
+    cout << "Effect: " << reward.description << endl;
+    cout << "\nPress any key to continue...";
+    GETCH();
 }
 
 void runBossFight(Player& p, Room& bossRoom, PuzzleEngine& engine) {
@@ -459,3 +702,8 @@ bool loadFullGame(Player& p, Floor& f, DungeonGenerator& gen, int difficulty) {
     }
     return true;
 }
+
+void pauseForUser() {
+    cout << "\nPress any key to continue...";
+    GETCH();
+} // call this whenever need pause
