@@ -169,7 +169,7 @@ g++ -std=c++17 -Wall -o word_dungeon.exe main.cpp ui.cpp dungeon.cpp player.cpp 
 
 ### Step 4 — Run
 ```bash
-word_dungeon.exe
+./word_dungeon.exe
 ```
 
 ### Step 5 — Play
