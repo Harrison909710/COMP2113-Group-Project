@@ -159,7 +159,10 @@ Difficulty affects dungeon generation and word selection through the current cod
 
 > All other libraries used are standard C++ libraries, such as `<iostream>`, `<fstream>`, `<vector>`, `<string>`, `<algorithm>`, `<random>`, `<unordered_map>`, `<chrono>`, `<thread>`, and `<cctype>`.
 >
-> Platform note: because `<conio.h>` is used, the current implementation is Windows-oriented. If the project must compile on the department server, this part may need to be replaced with a portable input method.
+The project is designed to be cross-platform, supporting both Windows and Linux.
+* **Windows**: Uses <conio.h> for direct keyboard input via _getch().
+* **Linux**: Implements a custom getch_linux() using <termios.h> and <unistd.h> to simulate the same behavior (reading keystrokes without pressing Enter).
+> The code automatically detects the operating system at compile time using the _WIN32 macro and maps the appropriate function to GETCH().
 
 ---
 
@@ -167,7 +170,7 @@ Difficulty affects dungeon generation and word selection through the current cod
 
 ### Prerequisites
 
-- OS: Windows
+- OS: Windows/Linux
 - Compiler: g++ with C++17 support
 - Make: GNU Make
 
