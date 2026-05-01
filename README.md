@@ -10,7 +10,7 @@ A terminal-based dungeon crawler where your weapon is your vocabulary. Explore d
 |---|---|---|
 | (Member 1 — fill in) | (ID) | Database / Save-Load / Word System |
 | (Member 2 — fill in) | (ID) | Dungeon Generation / Movement Logic |
-| (Member 3 — fill in) | (ID) | Player / Inventory / Scoring |
+| (Member 3 — Ludjio Nathanael Reiner) | (3036484824) | Player / Inventory / Scoring |
 | (Member 4 — fill in) | (ID) | UI / Game Loop / Puzzle Routing |
 | (Member 5 — Liu Liyang) | 3035552529 | Puzzle Engine (all puzzle types + timer) |
 
