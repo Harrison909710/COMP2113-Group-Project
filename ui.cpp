@@ -10,7 +10,9 @@
 //implement GETCH() for both windows and linux
 #ifdef _WIN32
     #include <conio.h>
+    #include <cstdlib>
     #define GETCH _getch
+    #define INIT_CONSOLE() system("chcp 65001")
 #else
     #include <termios.h>
     #include <unistd.h>
@@ -27,6 +29,7 @@
         return ch;
     }
     #define GETCH getch_linux
+    #define INIT_CONSOLE() 
 #endif
 
 using namespace std;
@@ -49,32 +52,34 @@ void displayDifficultySelect() {
 }
 
 void runGame(Player& player, int difficulty) {
-    // Initialize word database (P4)
     initializeWordDatabase();
-
     DungeonGenerator gen(11, 11);
-    Player localPlayer = createPlayer(player.name, difficulty);
-
+    
+    Player localPlayer = player; 
     Floor tempFloor;
 
-    // Check if we are loading a saved game
-    if (difficulty == -1) { // -1 used as a flag for "Continue"
+    if (difficulty == -1) { 
         if (!loadFullGame(localPlayer, tempFloor, gen, difficulty)) {
-            cout << "No save file found. Starting a new game.\n";
-            cout << "Press any key to continue...";
-            GETCH();
-            gameLoop(localPlayer, gen, 1); // fallback
-            return;
+            cout << "No save file found!\n";
+            pauseForUser();
+            return; 
+        } else {
+            gameLoop(localPlayer, gen, 1); 
+            return; 
         }
+        return; 
     } else {
-        // New game: start from floor 1
+        localPlayer = createPlayer(player.name, difficulty);
         localPlayer.currentFloor = 1;
         gameLoop(localPlayer, gen, difficulty);
+        
+        if (isDead(localPlayer)) {
+            saveLeaderboard(localPlayer.name, calculateScore(localPlayer));
+            displayLeaderboard();
+            pauseForUser();
+        }
+        return; 
     }
-
-    // After game over, update leaderboard and display
-    saveLeaderboard(localPlayer.name, calculateScore(localPlayer));
-    displayLeaderboard();
 }
 
 void displayMap(const Floor& f, int playerX, int playerY, DungeonGenerator& gen) {

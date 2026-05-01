@@ -52,7 +52,6 @@ int main() {
                     if (loadGameState(player, currentFloorObj)) {
                         pauseForUser();
                         runGame(player, -1);
-                        saveGameState(player, currentFloorObj);
                     } else {
                         cout << "Load failed." << endl;
                         pauseForUser();
