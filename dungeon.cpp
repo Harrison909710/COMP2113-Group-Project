@@ -8,10 +8,16 @@
 
 using namespace std;
 
+// What it does: Initializes the generator with map dimensions and seeds the random number generator.
+// What the inputs are: w (width), h (height) of the dungeon grid.
+// What the outputs are: None (Constructor).
 DungeonGenerator::DungeonGenerator(int w, int h) : defaultWidth(w), defaultHeight(h) {
     srand(static_cast<unsigned int>(time(0)));
 }
 
+// What it does: Generates an entire floor, including puzzle rooms and treasure rooms.
+// What the inputs are: floorNumber (current depth), chosenDifficulty (game difficulty level).
+// What the outputs are: A Floor object containing the complete floor data.
 Floor DungeonGenerator::generateFloor(int floorNumber, int chosenDifficulty) {
     Floor f;
     f.floorNumber = floorNumber;
@@ -47,6 +53,9 @@ Floor DungeonGenerator::generateFloor(int floorNumber, int chosenDifficulty) {
     return f;
 }
 
+// What it does: Creates an individual room with specific data like puzzle type and mystery words.
+// What the inputs are: floorNumber (current floor), roomID (unique ID), type (RoomType enum), chosenDifficulty (difficulty level).
+// What the outputs are: A Room struct populated with game data.
 Room DungeonGenerator::generateRoom(int floorNumber, int roomID, RoomType type, int chosenDifficulty) {
     Room r;
     r.roomID = roomID;
@@ -88,6 +97,9 @@ Room DungeonGenerator::generateRoom(int floorNumber, int roomID, RoomType type, 
     return r;
 }
 
+// What it does: Creates the initial grid filled with floor tiles and boundary walls.
+// What the inputs are: m (Map reference).
+// What the outputs are: None (Initializes the grid vector).
 void DungeonGenerator::initializeMap(Map& m) {
     m.grid.assign(m.height, std::vector<TileType>(m.width, TileType::FLOOR));
     for (int y = 0; y < m.height; y++) {
@@ -101,6 +113,9 @@ void DungeonGenerator::initializeMap(Map& m) {
     }
 }
 
+// What it does: Randomly assigns coordinates to rooms on the map without overlapping.
+// What the inputs are: f (Floor reference).
+// What the outputs are: None (Assigns x/y to each room and updates the grid).
 void DungeonGenerator::placeElements(Floor& f) {
     for (auto& room : f.rooms) {
         bool placed = false;
@@ -124,6 +139,9 @@ void DungeonGenerator::placeElements(Floor& f) {
     }
 }
 
+// What it does: Randomly selects a room type based on the current floor number.
+// What the inputs are: floorNumber (current depth), index (room sequence index).
+// What the outputs are: A RoomType enum value representing the selected room type.
 RoomType DungeonGenerator::pickRoomType(int floorNumber, int index) {
     // Speed Round appears after floor 5 with 15% chance
     if (floorNumber > 5 && (rand() % 100 < 15)) {
@@ -134,17 +152,25 @@ RoomType DungeonGenerator::pickRoomType(int floorNumber, int index) {
     return static_cast<RoomType>(rand() % 6);
 }
 
+// What it does: Checks if the current floor number is a designated boss floor.
+// What the inputs are: floorNumber (integer).
+// What the outputs are: Boolean value (true if it is a boss floor).
 bool DungeonGenerator::isBossFloor(int floorNumber) {
     return (floorNumber > 0 && floorNumber % 10 == 0);
 }
 
+// What it does: Places the exit stairs on the map grid to allow progression.
+// What the inputs are: f (Floor reference).
+// What the outputs are: None (Modifies the Map grid tiles).
 void DungeonGenerator::spawnStairs(Floor& f) {
     if (f.floorNumber < 10) {
         f.layout.grid[f.startY][f.startX] = TileType::STAIRS;
     }
 }
 
-
+// What it does: Marks a room as cleared and checks if all rooms are cleared to spawn stairs.
+// What the inputs are: f (Floor reference), x/y (Coordinates of the cleared room).
+// What the outputs are: None (Updates the Floor object state).
 void DungeonGenerator::updateRoomStatus(Floor& f, int x, int y) {
     Room* r = getRoomAt(f, x, y);
     if (r) {
@@ -165,6 +191,9 @@ void DungeonGenerator::updateRoomStatus(Floor& f, int x, int y) {
     }
 }
 
+// What it does: Validates player movement and updates coordinates if no collision occurs.
+// What the inputs are: f (Floor reference), pX/pY (Player coordinates by reference), moveX/moveY (Movement vector).
+// What the outputs are: Boolean value (true if the movement was successful).
 bool DungeonGenerator::handleMove(Floor& f, int& pX, int& pY, int moveX, int moveY) {
     int nextX = pX + moveX;
     int nextY = pY + moveY;
@@ -178,6 +207,9 @@ bool DungeonGenerator::handleMove(Floor& f, int& pX, int& pY, int moveX, int mov
     return true;
 }
 
+// What it does: Searches for a room object at specific grid coordinates.
+// What the inputs are: f (Floor reference), x/y (Grid coordinates).
+// What the outputs are: A pointer to the Room object found, or nullptr if none exists.
 Room* DungeonGenerator::getRoomAt(Floor& f, int x, int y) {
     for (auto& r : f.rooms) {
         if (r.x == x && r.y == y) return &r;
