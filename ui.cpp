@@ -356,6 +356,7 @@ bool runAnagramPuzzle(Player& p, const string& answer, PuzzleEngine& engine) {
 // What it does: Runs the Caesar cipher puzzle with a fixed shift of 3.
 // What the inputs are: p - reference to the Player; answer - the original word; engine - reference to the PuzzleEngine.
 // What the outputs are: Returns true if the player guesses correctly, false otherwise.
+
 bool runCaesarPuzzle(Player& p, const string& answer, PuzzleEngine& engine) {
     int shift = 3; // fixed shift
     string cipher = engine.caesarCipher(answer, shift, true);
