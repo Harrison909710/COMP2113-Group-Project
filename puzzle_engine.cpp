@@ -45,7 +45,7 @@ string PuzzleEngine::caesarCipher(const string& text, int shift, bool encrypt) {
     }
     return result;
 }
-
+//  alphabet Substitution
 void PuzzleEngine::generateSubstitutionMap() {
     string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     string shuffled = alphabet;
@@ -88,7 +88,7 @@ bool PuzzleEngine::isSingleLetterChange(const string& word1, const string& word2
     }
     return differences == 1;
 }
-
+// get random riddle 
 PuzzleEngine::Riddle PuzzleEngine::getRandomRiddle() {
     uniform_int_distribution<size_t> dist(0, riddles_.size() - 1);
     return riddles_[dist(rng_)];
