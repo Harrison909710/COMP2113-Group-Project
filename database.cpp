@@ -16,6 +16,8 @@ static vector<string> mediumWords;
 static vector<string> hardWords;
 
 // Load all words from a text file.
+// Input: filename of the text file.
+// Output: returns a vector containing the loaded words.
 vector<string> loadWords(string filename)
 {
     vector<string> words;
@@ -40,7 +42,9 @@ vector<string> loadWords(string filename)
     return words;
 }
 
-// Load all difficulty word lists.
+// Load all three difficulty word lists.
+// Input: none.
+// Output: stores word lists in memory.
 void initializeWordDatabase()
 {
     easyWords = loadWords("words_easy.txt");
@@ -50,7 +54,9 @@ void initializeWordDatabase()
     srand(time(0));
 }
 
-// Return one random word by difficulty.
+// Return one random word based on difficulty.
+// Input: difficulty level.
+// Output: returns one random word string.
 string getRandomWord(int difficulty)
 {
     vector<string>* selectedList = nullptr;
@@ -77,7 +83,9 @@ string getRandomWord(int difficulty)
     return (*selectedList)[index];
 }
 
-// Load leaderboard data from file.
+// Read leaderboard data from file.
+// Input: none.
+// Output: returns a vector of score entries.
 vector<ScoreEntry> loadLeaderboard()
 {
     vector<ScoreEntry> leaderboard;
@@ -98,7 +106,9 @@ vector<ScoreEntry> loadLeaderboard()
     return leaderboard;
 }
 
-// Save a new score and keep top 10.
+// Add a new score and keep only top 10.
+// Input: player name and score.
+// Output: updates leaderboard.txt.
 void saveLeaderboard(string name, int score)
 {
     vector<ScoreEntry> leaderboard = loadLeaderboard();
@@ -135,7 +145,9 @@ void saveLeaderboard(string name, int score)
     fout.close();
 }
 
-// Print the leaderboard on screen.
+// Show the leaderboard on screen.
+// Input: none.
+// Output: prints leaderboard entries.
 void displayLeaderboard()
 {
     vector<ScoreEntry> leaderboard = loadLeaderboard();
@@ -159,6 +171,8 @@ void displayLeaderboard()
 }
 
 // Save player and floor data to file.
+// Input: current player and floor.
+// Output: writes the save file.
 void saveGameState(const Player& p, const Floor& f)
 {
     ofstream fout("save.txt");
@@ -188,6 +202,8 @@ void saveGameState(const Player& p, const Floor& f)
 }
 
 // Load player and floor data from file.
+// Input: player and floor passed by reference.
+// Output: returns true if loading is successful.
 bool loadGameState(Player& p, Floor& f)
 {
     ifstream fin("save.txt");
@@ -218,7 +234,9 @@ bool loadGameState(Player& p, Floor& f)
     return true;
 }
 
-// Check whether save.txt exists.
+// Check whether the save file exists.
+// Input: none.
+// Output: returns true if save.txt can be opened.
 bool hasSaveFile()
 {
     ifstream fin("save.txt");
