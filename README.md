@@ -14,8 +14,6 @@ A terminal-based dungeon crawler where your weapon is your vocabulary. Explore d
 | Member 4 — Chan Kin Ho | 3036397007 | UI / Game Loop / Puzzle Routing |
 | Member 5 — Liu Liyang | 3035552529 | Puzzle Engine (all puzzle types + timer) |
 
-> Note: Replace the placeholder names and IDs above with your actual team information before submission.
-
 ---
 
 ## Game Description
