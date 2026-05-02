@@ -8,7 +8,7 @@ A terminal-based dungeon crawler where your weapon is your vocabulary. Explore d
 
 | Name | Student ID | Role |
 |---|---|---|
-| Member 1 — fill in | (ID) | Database / Save-Load / Word System |
+| Member 1 — Ng Cheuk Him, Harrison | 3036390516 | Database / Save-Load / Word System |
 | Member 2 — Ren Zihao | 3036390231 | Dungeon Generation / Movement Logic |
 | Member 3 — Ludjio Nathanael Reiner | 3036484824 | Player / Inventory / Scoring |
 | Member 4 — Chan Kin Ho | 3036397007 | UI / Game Loop / Puzzle Routing |
