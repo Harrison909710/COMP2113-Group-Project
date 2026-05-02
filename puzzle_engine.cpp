@@ -20,7 +20,7 @@ string PuzzleEngine::generateAnagram(const string& word) {
     shuffle(scrambled.begin(), scrambled.end(), rng_);
     return scrambled;
 }
-
+//validate anagram
 bool PuzzleEngine::validateAnagram(const string& original, const string& attempt) {
     if (original.length() != attempt.length()) return false;
     
@@ -65,7 +65,7 @@ string PuzzleEngine::substitutionCipher(const string& text) {
     }
     return result;
 }
-
+//validate wordchain
 bool PuzzleEngine::validateWordChain(const vector<string>& chain) {
     if (chain.empty()) return false;
     
@@ -76,7 +76,7 @@ bool PuzzleEngine::validateWordChain(const vector<string>& chain) {
     }
     return true;
 }
-
+// only one word can be change each turn
 bool PuzzleEngine::isSingleLetterChange(const string& word1, const string& word2) {
     if (word1.length() != word2.length()) return false;
     
