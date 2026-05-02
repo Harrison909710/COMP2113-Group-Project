@@ -74,7 +74,7 @@ string PuzzleEngine::substitutionCipher(const string& text) {
     return result;
 }
 
-//validate wordchain
+//validate word chain
 bool PuzzleEngine::validateWordChain(const vector<string>& chain) {
     if (chain.empty()) return false;
     
@@ -86,7 +86,7 @@ bool PuzzleEngine::validateWordChain(const vector<string>& chain) {
     return true;
 }
 
-// only one word can be change each turn
+// only one word can be changed each turn
 bool PuzzleEngine::isSingleLetterChange(const string& word1, const string& word2) {
     if (word1.length() != word2.length()) return false;
     
@@ -107,8 +107,16 @@ PuzzleEngine::Riddle PuzzleEngine::getRandomRiddle() {
 void PuzzleEngine::startTimer(int seconds) {
     end_time_ = chrono::system_clock::now() + chrono::seconds(seconds);
 }
-// tracking the ime for answering question. 
+// tracking the time for answering question. 
 
 bool PuzzleEngine::isTimeUp() const {
     return chrono::system_clock::now() >= end_time_;
+
+
+
+
+
+
+
+    
 }
