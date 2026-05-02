@@ -10,16 +10,21 @@ PuzzleEngine::PuzzleEngine() {
     generateSubstitutionMap();
 }
 
+// initialize rng
 void PuzzleEngine::initializeRNG() {
     random_device rd;
     rng_.seed(rd());
 }
+
+
 //Random Number Generator
 string PuzzleEngine::generateAnagram(const string& word) {
     string scrambled = word;
     shuffle(scrambled.begin(), scrambled.end(), rng_);
     return scrambled;
 }
+
+
 //validate anagram
 bool PuzzleEngine::validateAnagram(const string& original, const string& attempt) {
     if (original.length() != attempt.length()) return false;
@@ -31,6 +36,7 @@ bool PuzzleEngine::validateAnagram(const string& original, const string& attempt
     
     return sorted_original == sorted_attempt;
 }
+
 
 string PuzzleEngine::caesarCipher(const string& text, int shift, bool encrypt) {
     if (!encrypt) shift = -shift;
@@ -45,6 +51,7 @@ string PuzzleEngine::caesarCipher(const string& text, int shift, bool encrypt) {
     }
     return result;
 }
+
 //  alphabet Substitution
 void PuzzleEngine::generateSubstitutionMap() {
     string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -56,6 +63,7 @@ void PuzzleEngine::generateSubstitutionMap() {
         substitution_map_[tolower(alphabet[i])] = tolower(shuffled[i]);
     }
 }
+
 // Substitution cipher generator
 string PuzzleEngine::substitutionCipher(const string& text) {
     string result;
@@ -65,6 +73,7 @@ string PuzzleEngine::substitutionCipher(const string& text) {
     }
     return result;
 }
+
 //validate wordchain
 bool PuzzleEngine::validateWordChain(const vector<string>& chain) {
     if (chain.empty()) return false;
@@ -76,6 +85,7 @@ bool PuzzleEngine::validateWordChain(const vector<string>& chain) {
     }
     return true;
 }
+
 // only one word can be change each turn
 bool PuzzleEngine::isSingleLetterChange(const string& word1, const string& word2) {
     if (word1.length() != word2.length()) return false;
@@ -88,6 +98,7 @@ bool PuzzleEngine::isSingleLetterChange(const string& word1, const string& word2
     }
     return differences == 1;
 }
+
 // get random riddle 
 PuzzleEngine::Riddle PuzzleEngine::getRandomRiddle() {
     uniform_int_distribution<size_t> dist(0, riddles_.size() - 1);
@@ -97,6 +108,7 @@ PuzzleEngine::Riddle PuzzleEngine::getRandomRiddle() {
 void PuzzleEngine::startTimer(int seconds) {
     end_time_ = chrono::system_clock::now() + chrono::seconds(seconds);
 }
+// tracking the ime for answering question. 
 
 bool PuzzleEngine::isTimeUp() const {
     return chrono::system_clock::now() >= end_time_;
