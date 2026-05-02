@@ -7,6 +7,7 @@
 #include <thread>
 #include <algorithm>
 #include <cctype>
+
 //implement GETCH() for both windows and linux
 #ifdef _WIN32
     #include <conio.h>
@@ -35,6 +36,10 @@
 using namespace std;
 
 // =================== Main Menu & Setup ===================
+
+// What it does: Displays the main menu with options 1-4 and the ASCII title.
+// What the inputs are: None.
+// What the outputs are: None (prints to console).
 void displayMainMenu() {
     drawASCII("title");
     cout << "\n===== WORD DUNGEON =====\n"
@@ -44,6 +49,9 @@ void displayMainMenu() {
          << "4. Quit\n";
 }
 
+// What it does: Displays the difficulty selection menu.
+// What the inputs are: None.
+// What the outputs are: None (prints to console).
 void displayDifficultySelect() {
     cout << "\nChoose difficulty:\n"
          << "1. Easy   (HP: 10)\n"
@@ -51,6 +59,9 @@ void displayDifficultySelect() {
          << "3. Hard   (HP: 5)\n";
 }
 
+// What it does: Starts a new game or loads a saved game, then runs the game loop.
+// What the inputs are: player - reference to a Player struct; difficulty - 1,2,3 for new game, -1 to load.
+// What the outputs are: None (runs the game until completion).
 void runGame(Player& player, int difficulty) {
     initializeWordDatabase();
     DungeonGenerator gen(11, 11);
@@ -82,6 +93,9 @@ void runGame(Player& player, int difficulty) {
     }
 }
 
+// What it does: Displays the dungeon map with walls, rooms, stairs, and the player's position.
+// What the inputs are: f - constant reference to the current Floor; playerX, playerY - player coordinates; gen - reference to the DungeonGenerator for room lookup.
+// What the outputs are: None (prints the map to console).
 void displayMap(const Floor& f, int playerX, int playerY, DungeonGenerator& gen) {
     cout << "\n--- DUNGEON MAP ---\n";
     for (int y = 0; y < 11; ++y) {
@@ -117,6 +131,10 @@ void displayMap(const Floor& f, int playerX, int playerY, DungeonGenerator& gen)
 }
 
 // =================== Main Game Loop ===================
+
+// What it does: Runs the main game loop: movement, puzzle rooms, treasure, boss fight, and floor progression.
+// What the inputs are: p - reference to the Player; gen - reference to the DungeonGenerator; difficulty - game difficulty level.
+// What the outputs are: None (modifies player and floor state until game over or victory).
 void gameLoop(Player& p, DungeonGenerator& gen, int difficulty) {
     int pX, pY;
     Floor currentFloor = gen.generateFloor(p.currentFloor, difficulty);
@@ -244,6 +262,10 @@ void gameLoop(Player& p, DungeonGenerator& gen, int difficulty) {
 }
 
 // =================== Puzzle Routing ===================
+
+// What it does: Chooses and runs the correct puzzle function based on the room type.
+// What the inputs are: p - reference to the Player; dRoom - reference to the Room; engine - reference to the PuzzleEngine.
+// What the outputs are: Returns true if the puzzle is solved, false otherwise.
 bool runPuzzle(Player& p, Room& dRoom, PuzzleEngine& engine) {
     cout << "\nA puzzle appears! Type: ";
     switch (dRoom.type) {
@@ -265,6 +287,9 @@ bool runPuzzle(Player& p, Room& dRoom, PuzzleEngine& engine) {
     }
 }
 
+// What it does: Displays the player's inventory and allows using an item.
+// What the inputs are: p - reference to the Player.
+// What the outputs are: None (modifies inventory/player state based on user choice).
 void handleInventoryInput(Player& p) {
     displayInventory(p); 
     if (p.inventory.empty()) {
@@ -290,6 +315,10 @@ void handleInventoryInput(Player& p) {
 }
 
 // =================== Individual Puzzles ===================
+
+// What it does: Runs the anagram puzzle where the player must unscramble a word.
+// What the inputs are: p - reference to the Player; answer - the correct word; engine - reference to the PuzzleEngine.
+// What the outputs are: Returns true if the player guesses correctly, false otherwise.
 bool runAnagramPuzzle(Player& p, const string& answer, PuzzleEngine& engine) {
     string scrambled = engine.generateAnagram(answer);
     while (true) {
@@ -324,6 +353,9 @@ bool runAnagramPuzzle(Player& p, const string& answer, PuzzleEngine& engine) {
     }
 }
 
+// What it does: Runs the Caesar cipher puzzle with a fixed shift of 3.
+// What the inputs are: p - reference to the Player; answer - the original word; engine - reference to the PuzzleEngine.
+// What the outputs are: Returns true if the player guesses correctly, false otherwise.
 bool runCaesarPuzzle(Player& p, const string& answer, PuzzleEngine& engine) {
     int shift = 3; // fixed shift
     string cipher = engine.caesarCipher(answer, shift, true);
@@ -359,6 +391,9 @@ bool runCaesarPuzzle(Player& p, const string& answer, PuzzleEngine& engine) {
     }
 }
 
+// What it does: Runs the substitution cipher puzzle where each letter is mapped randomly.
+// What the inputs are: p - reference to the Player; answer - the original word; engine - reference to the PuzzleEngine.
+// What the outputs are: Returns true if the player guesses correctly, false otherwise.
 bool runSubstitutionPuzzle(Player& p, const string& answer, PuzzleEngine& engine) {
     string cipher = engine.substitutionCipher(answer);
     while (true) {
@@ -393,6 +428,9 @@ bool runSubstitutionPuzzle(Player& p, const string& answer, PuzzleEngine& engine
     }
 }
 
+// What it does: Runs the hangman puzzle, allowing the player to guess letters one by one.
+// What the inputs are: p - reference to the Player; answer - the word to guess.
+// What the outputs are: Returns true if the word is completed, false if the player runs out of wrong attempts.
 bool runHangmanPuzzle(Player& p, const string& answer) {
     const int maxWrong = 6;
     int wrong = 0;
@@ -454,6 +492,9 @@ bool runHangmanPuzzle(Player& p, const string& answer) {
     }
 }
 
+// What it does: Runs the riddle puzzle, where the player answers a riddle from the engine.
+// What the inputs are: p - reference to the Player; engine - reference to the PuzzleEngine.
+// What the outputs are: Returns true if the answer is correct, false otherwise.
 bool runRiddlePuzzle(Player& p, PuzzleEngine& engine) {
     auto riddle = engine.getRandomRiddle();
     while (true) {
@@ -488,6 +529,9 @@ bool runRiddlePuzzle(Player& p, PuzzleEngine& engine) {
     }
 }
 
+// What it does: Runs the word chain puzzle: the player provides a middle word that differs by one letter from the start and end words.
+// What the inputs are: p - reference to the Player; answer - the target word used for the chain's endpoints; engine - reference to the PuzzleEngine.
+// What the outputs are: Returns true if the chain is valid, false otherwise.
 bool runWordChainPuzzle(Player& p, const string& answer, PuzzleEngine& engine) {
     while (true) {
         cout << "Word Chain: " << answer << " -> ??? -> " << answer << "\n";
@@ -522,6 +566,9 @@ bool runWordChainPuzzle(Player& p, const string& answer, PuzzleEngine& engine) {
     }
 }
 
+// What it does: Runs the speed round puzzle, where the player must unscramble a word within a given time limit.
+// What the inputs are: p - reference to the Player; answer - the correct word; engine - reference to the PuzzleEngine; timeLimit - maximum seconds allowed.
+// What the outputs are: Returns true if the player unscrambles correctly within the time limit, false otherwise.
 bool runSpeedRound(Player& p, const string& answer, PuzzleEngine& engine, int timeLimit) {
     string scrambled = engine.generateAnagram(answer);
     auto start = chrono::steady_clock::now();
@@ -576,6 +623,10 @@ bool runSpeedRound(Player& p, const string& answer, PuzzleEngine& engine, int ti
 }
 
 // =================== Treasure & Boss ===================
+
+// What it does: Handles the treasure room encounter, awarding a random item to the player.
+// What the inputs are: p - reference to the Player.
+// What the outputs are: None (adds an item to inventory and displays the reward).
 void runTreasure(Player& p) {
     int idx = rand() % 5;
     ItemType type = static_cast<ItemType>(idx);
@@ -597,6 +648,9 @@ void runTreasure(Player& p) {
     GETCH();
 }
 
+// What it does: Runs the boss fight, which consists of three puzzle phases (Riddle, Caesar, Anagram).
+// What the inputs are: p - reference to the Player; bossRoom - reference to the boss Room; engine - reference to the PuzzleEngine.
+// What the outputs are: None (marks bossRoom as cleared if all phases are won, otherwise player may die).
 void runBossFight(Player& p, Room& bossRoom, PuzzleEngine& engine) {
     drawASCII("boss");
     cout << "BOSS FIGHT! Defeat the champion in three phases.\n";
@@ -626,6 +680,10 @@ void runBossFight(Player& p, Room& bossRoom, PuzzleEngine& engine) {
 }
 
 // =================== Hint Generation ===================
+
+// What it does: Creates a Room object with three pre‑written hints for a given answer.
+// What the inputs are: answer - the word for which hints are needed.
+// What the outputs are: Returns a Room struct containing hint1, hint2, hint3.
 Room makeHintRoom(const string& answer) {
     Room hr;
     hr.answer = answer;
@@ -636,6 +694,10 @@ Room makeHintRoom(const string& answer) {
 }
 
 // =================== Display Helpers ===================
+
+// What it does: Displays the player's HP bar, current floor, and score.
+// What the inputs are: p - constant reference to the Player.
+// What the outputs are: None (prints to console).
 void displayHPBar(const Player& p) {
     cout << "\n[HP: ";
     for (int i = 0; i < p.hp; i++) cout << "\u2588";
@@ -644,6 +706,9 @@ void displayHPBar(const Player& p) {
          << "  Score: " << p.score << "\n";
 }
 
+// What it does: Prints a description of the room the player has just entered.
+// What the inputs are: r - constant reference to the Room.
+// What the outputs are: None (prints to console).
 void displayRoomDescription(const Room& r) {
     cout << "\nYou enter a " << r.category << " room.\n";
     switch (r.type) {
@@ -658,6 +723,9 @@ void displayRoomDescription(const Room& r) {
     }
 }
 
+// What it does: Draws ASCII art for the title screen or the boss encounter.
+// What the inputs are: type - a string, either "title" or "boss".
+// What the outputs are: None (prints to console).
 void drawASCII(const string& type) {
     if (type == "title") {
         cout << R"(
@@ -677,23 +745,36 @@ O|===|* >________________>
     }
 }
 
+// What it does: Displays the death screen and final score.
+// What the inputs are: p - constant reference to the Player.
+// What the outputs are: None (prints to console).
 void displayDeathScreen(const Player& p) {
     cout << "You have perished in the dungeon.\n";
     cout << "Final Score: " << calculateScore(p) << "\n";
     pauseForUser();
 }
 
+// What it does: Displays the victory screen and final score.
+// What the inputs are: p - constant reference to the Player.
+// What the outputs are: None (prints to console).
 void displayWinScreen(const Player& p) {
     cout << "\nCongratulations! You escaped the Word Dungeon!\n";
     cout << "Final Score: " << calculateScore(p) << "\n";
     pauseForUser();
 }
 
+// What it does: Displays a banner with the current floor number.
+// What the inputs are: floor - the floor number to display.
+// What the outputs are: None (prints to console).
 void displayFloorInfo(int floor) {
     cout << "\n--- Floor " << floor << " ---\n";
 }
 
 // =================== Save/Load Extension ===================
+
+// What it does: Saves the full game state, including the player's inventory, to disk.
+// What the inputs are: p - constant reference to the Player; f - constant reference to the current Floor.
+// What the outputs are: None (writes save.txt and inventory.txt).
 void saveFullGame(const Player& p, const Floor& f) {
     // First save base state using P4's function (already done in main)
     saveGameState(p, f);
@@ -706,6 +787,9 @@ void saveFullGame(const Player& p, const Floor& f) {
     cout << "Full game saved.\n";
 }
 
+// What it does: Loads a full saved game, regenerating the floor layout and restoring the inventory.
+// What the inputs are: p - reference to Player (will be overwritten); f - reference to Floor; gen - reference to DungeonGenerator; difficulty - not used (re‑obtained from save).
+// What the outputs are: Returns true if loading succeeded, false otherwise.
 bool loadFullGame(Player& p, Floor& f, DungeonGenerator& gen, int difficulty) {
     if (!loadGameState(p, f)) return false;
     // Regenerate the floor layout and rooms (since they weren't saved)
@@ -731,6 +815,9 @@ bool loadFullGame(Player& p, Floor& f, DungeonGenerator& gen, int difficulty) {
     return true;
 }
 
+// What it does: Halts execution until the user presses any key.
+// What the inputs are: None.
+// What the outputs are: None (blocks for a keypress, then returns).
 void pauseForUser() {
     cout << "\nPress any key to continue...\n";
     GETCH();
