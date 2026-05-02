@@ -10,10 +10,12 @@
 
 using namespace std;
 
+// Store words for each difficulty.
 static vector<string> easyWords;
 static vector<string> mediumWords;
 static vector<string> hardWords;
 
+// Load all words from a text file.
 vector<string> loadWords(string filename)
 {
     vector<string> words;
@@ -38,6 +40,7 @@ vector<string> loadWords(string filename)
     return words;
 }
 
+// Load all difficulty word lists.
 void initializeWordDatabase()
 {
     easyWords = loadWords("words_easy.txt");
@@ -47,6 +50,7 @@ void initializeWordDatabase()
     srand(time(0));
 }
 
+// Return one random word by difficulty.
 string getRandomWord(int difficulty)
 {
     vector<string>* selectedList = nullptr;
@@ -73,6 +77,7 @@ string getRandomWord(int difficulty)
     return (*selectedList)[index];
 }
 
+// Load leaderboard data from file.
 vector<ScoreEntry> loadLeaderboard()
 {
     vector<ScoreEntry> leaderboard;
@@ -93,6 +98,7 @@ vector<ScoreEntry> loadLeaderboard()
     return leaderboard;
 }
 
+// Save a new score and keep top 10.
 void saveLeaderboard(string name, int score)
 {
     vector<ScoreEntry> leaderboard = loadLeaderboard();
@@ -129,6 +135,7 @@ void saveLeaderboard(string name, int score)
     fout.close();
 }
 
+// Print the leaderboard on screen.
 void displayLeaderboard()
 {
     vector<ScoreEntry> leaderboard = loadLeaderboard();
@@ -151,6 +158,7 @@ void displayLeaderboard()
     }
 }
 
+// Save player and floor data to file.
 void saveGameState(const Player& p, const Floor& f)
 {
     ofstream fout("save.txt");
@@ -179,6 +187,7 @@ void saveGameState(const Player& p, const Floor& f)
     cout << "Game saved successfully." << endl;
 }
 
+// Load player and floor data from file.
 bool loadGameState(Player& p, Floor& f)
 {
     ifstream fin("save.txt");
@@ -209,6 +218,7 @@ bool loadGameState(Player& p, Floor& f)
     return true;
 }
 
+// Check whether save.txt exists.
 bool hasSaveFile()
 {
     ifstream fin("save.txt");
