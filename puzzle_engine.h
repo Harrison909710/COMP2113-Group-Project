@@ -5,16 +5,20 @@
 #include <random>
 #include <unordered_map>
 #include <chrono> 
-class PuzzleEngine {
+class PuzzleEngine 
+{
 public:
     explicit PuzzleEngine();
     ~PuzzleEngine() = default;
+
     std::string generateAnagram(const std::string& word);
+
     bool validateAnagram(const std::string& original, const std::string& attempt);
 
     std::string caesarCipher(const std::string& text, int shift, bool encrypt);
     
     void generateSubstitutionMap();
+
     std::string substitutionCipher(const std::string& text);
 
     bool validateWordChain(const std::vector<std::string>& chain);
@@ -23,6 +27,7 @@ public:
         std::string question;
         std::string answer;
     };
+
     Riddle getRandomRiddle();
 
     void startTimer(int seconds);
@@ -52,6 +57,8 @@ private:
 };
 
     void initializeRNG();
+
     bool isSingleLetterChange(const std::string& word1, const std::string& word2);
 };
+
 #endif
