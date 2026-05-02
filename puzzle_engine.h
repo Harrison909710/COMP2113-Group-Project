@@ -54,6 +54,19 @@ private:
     {"What has a head, a tail, but no body?", "coin"},
     {"What is so fragile that saying its name breaks it?", "silence"},
     {"What can run but never walks?", "river"},
+    {"What has hands but can't clap?", "clock"},
+    {"What has a neck but no head?", "bottle"},
+    {"What gets bigger when more is taken away?", "hole"},
+    {"What is full of holes but still holds water?", "sponge"},
+    {"What has cities but no houses, forests but no trees?", "map"},
+    {"What has words but never speaks?", "book"},
+    {"What can travel around the world while staying in a corner?", "stamp"},
+    {"What has a thumb and four fingers but isn't alive?", "glove"},
+    {"What has many rings but no fingers?", "telephone"},
+    {"What has a face and two hands but no arms or legs?", "clock"},
+    {"What is always in front of you but can't be seen?", "future"},
+    {"The more there is, the less you see. What is it?", "darkness"},
+    {"What goes through towns and over hills but never moves?", "road"},
 };
 
     void initializeRNG();
