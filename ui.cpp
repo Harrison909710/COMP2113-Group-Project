@@ -175,6 +175,18 @@ void gameLoop(Player& p, DungeonGenerator& gen, int difficulty) {
                 runBossFight(p, *roomPtr, puzzleEngine);
                 if (roomPtr->isCleared) {
                     gen.updateRoomStatus(currentFloor, pX, pY);
+                        if (currentFloor.floorNumber == 10) {
+                            running = false;
+                            displayWinScreen(p);
+
+                            saveLeaderboard(p.name, calculateScore(p));
+                            pauseForUser();
+
+                            displayLeaderboard();
+                            pauseForUser();
+                            
+                            break;
+                        }
                 }
             }
             else {
@@ -592,15 +604,19 @@ void runBossFight(Player& p, Room& bossRoom, PuzzleEngine& engine) {
     cout << "BOSS FIGHT! Defeat the champion in three phases.\n";
     // Phase 1: Riddle
     cout << "Phase 1: Riddle\n";
-    if (!runRiddlePuzzle(p, engine)) { onWrongGuess(p); return; }
+    if (!runRiddlePuzzle(p, engine)) { pauseForUser(); }
+    else pauseForUser();
     // Phase 2: Caesar cipher
     cout << "Phase 2: Caesar Cipher\n";
-    if (!runCaesarPuzzle(p, bossRoom.answer , engine)) { onWrongGuess(p); return; }
+    string bossWord2 = getRandomWord(bossRoom.difficulty);
+    if (!runCaesarPuzzle(p, bossWord2 , engine)) { pauseForUser(); }
+    else pauseForUser();
     // Phase 3: Anagram
     cout << "Phase 3: Anagram\n";
-    if (!runAnagramPuzzle(p, bossRoom.answer , engine)) { onWrongGuess(p); return; }
+    string bossWord3 = getRandomWord(bossRoom.difficulty);
+    if (!runAnagramPuzzle(p, bossWord3 , engine)) { pauseForUser(); }
+    else pauseForUser();
     // Victory
-    onPuzzleSolved(p);
     bossRoom.isCleared = true;
 }
 
@@ -662,7 +678,7 @@ void displayDeathScreen(const Player& p) {
 }
 
 void displayWinScreen(const Player& p) {
-    cout << "Congratulations! You escaped the Word Dungeon!\n";
+    cout << "\nCongratulations! You escaped the Word Dungeon!\n";
     cout << "Final Score: " << calculateScore(p) << "\n";
 }
 
@@ -709,6 +725,6 @@ bool loadFullGame(Player& p, Floor& f, DungeonGenerator& gen, int difficulty) {
 }
 
 void pauseForUser() {
-    cout << "\nPress any key to continue...";
+    cout << "\nPress any key to continue...\n";
     GETCH();
 } // call this whenever need pause
