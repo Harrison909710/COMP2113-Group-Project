@@ -11,7 +11,7 @@ A terminal-based dungeon crawler where your weapon is your vocabulary. Explore d
 | (Member 1 — fill in) | (ID) | Database / Save-Load / Word System |
 | (Member 2 — Ren Zihao) | 3036390231 | Dungeon Generation / Movement Logic |
 | (Member 3 — Ludjio Nathanael Reiner) | (3036484824) | Player / Inventory / Scoring |
-| (Member 4 — fill in) | (ID) | UI / Game Loop / Puzzle Routing |
+| (Member 4 — Chan Kin Ho) | (3036397007) | UI / Game Loop / Puzzle Routing |
 | (Member 5 — Liu Liyang) | 3035552529 | Puzzle Engine (all puzzle types + timer) |
 
 > Note: Replace the placeholder names and IDs above with your actual team information before submission.
