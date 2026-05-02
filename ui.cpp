@@ -177,10 +177,8 @@ void gameLoop(Player& p, DungeonGenerator& gen, int difficulty) {
                     gen.updateRoomStatus(currentFloor, pX, pY);
                         if (currentFloor.floorNumber == 10) {
                             running = false;
-                            displayWinScreen(p);
-
                             saveLeaderboard(p.name, calculateScore(p));
-                            pauseForUser();
+                            displayWinScreen(p);
 
                             displayLeaderboard();
                             pauseForUser();
@@ -604,20 +602,27 @@ void runBossFight(Player& p, Room& bossRoom, PuzzleEngine& engine) {
     cout << "BOSS FIGHT! Defeat the champion in three phases.\n";
     // Phase 1: Riddle
     cout << "Phase 1: Riddle\n";
-    if (!runRiddlePuzzle(p, engine)) { pauseForUser(); }
+    if (!runRiddlePuzzle(p, engine)) { pauseForUser();
+        if (p.hp <= 0) {return;}
+    }
     else pauseForUser();
     // Phase 2: Caesar cipher
     cout << "Phase 2: Caesar Cipher\n";
     string bossWord2 = getRandomWord(bossRoom.difficulty);
-    if (!runCaesarPuzzle(p, bossWord2 , engine)) { pauseForUser(); }
+    if (!runCaesarPuzzle(p, bossWord2 , engine)) { pauseForUser();
+        if (p.hp <= 0) {return;}
+    }
     else pauseForUser();
     // Phase 3: Anagram
     cout << "Phase 3: Anagram\n";
     string bossWord3 = getRandomWord(bossRoom.difficulty);
-    if (!runAnagramPuzzle(p, bossWord3 , engine)) { pauseForUser(); }
-    else pauseForUser();
+    if (!runAnagramPuzzle(p, bossWord3 , engine)) { pauseForUser();
+        if (p.hp <= 0) {return;}
+    }
+    else {pauseForUser();
     // Victory
     bossRoom.isCleared = true;
+    }
 }
 
 // =================== Hint Generation ===================
@@ -675,11 +680,13 @@ O|===|* >________________>
 void displayDeathScreen(const Player& p) {
     cout << "You have perished in the dungeon.\n";
     cout << "Final Score: " << calculateScore(p) << "\n";
+    pauseForUser();
 }
 
 void displayWinScreen(const Player& p) {
     cout << "\nCongratulations! You escaped the Word Dungeon!\n";
     cout << "Final Score: " << calculateScore(p) << "\n";
+    pauseForUser();
 }
 
 void displayFloorInfo(int floor) {
