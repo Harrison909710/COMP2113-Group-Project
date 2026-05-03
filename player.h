@@ -66,17 +66,14 @@ void takeDamage(Player& p, int amount);
 // Output: none (modifies p.hp in place)
 void healPlayer(Player& p, int amount);
 
-// What it does: Reveals a hint for the current room at the specified tier, costing 1 HP.
-//               Does nothing if the player has 1 or fewer HP to prevent dying from a hint.
-// Input: p - reference to the Player requesting the hint; r - reference to the current Room;
-//        tier - hint level to reveal (1=vague, 2=medium, 3=close)
-// Output: none (prints hint to console and reduces p.hp by 1)
+// Reveals room hint at specified tier for 1 HP. Aborts if player HP <= 1.
+// Input: p (Player), r (Room), tier (1=vague, 2=medium, 3=close).
+// Output: Prints hint and reduces p.hp by 1.
 void useHint(Player& p, Room& r, int tier);
 
-// What it does: Uses an item from the player's inventory, applies its effect, then removes it.
-//               Prints an error message if the specified item is not in the inventory.
-// Input: p - reference to the Player using the item; item - the ItemType to use; r - reference to the current Room
-// Output: none (modifies player state and inventory, prints result to console)
+// Uses and removes inventory item, applying its effect. Errors if item missing.
+// Input: p (Player), item (ItemType), r (Room).
+// Output: Modifies player/inventory; prints result.
 void useItem(Player& p, ItemType item, Room& r);
 
 // What it does: Checks whether the player's HP has reached 0 or below.
