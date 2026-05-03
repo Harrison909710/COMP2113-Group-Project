@@ -36,7 +36,7 @@ struct Item {
 
 struct Player {
     std::string name;
- 
+    int level;
     int hp;           
     int maxHp;        
     int score;        

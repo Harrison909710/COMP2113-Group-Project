@@ -28,6 +28,7 @@ Player createPlayer(const std::string& name, int difficulty) {
     p.wrongGuesses = 0;
     p.freezeActive      = false;
     p.freezeSecondsLeft = 0;
+    p.level = 1;
 
     switch (difficulty) {
         case 1:  p.maxHp = 10; break;  
@@ -195,6 +196,7 @@ void displayStatus(const Player& p) {
 
     std::cout << " " << p.hp << "/" << p.maxHp << "]"
               << "  Floor: " << p.currentFloor
+              << "  Level: " << p.level/2+1
               << "  Score: " << p.score
               << "\n";
 }
