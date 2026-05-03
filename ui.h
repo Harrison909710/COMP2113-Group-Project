@@ -83,39 +83,39 @@ void displayFloorInfo(int floor);
 // ===== Individual Puzzle Mini-Games =====
 
 // What it does: Runs the anagram puzzle: the player must unscramble a word.
-// What the inputs are: p - reference to the Player; answer - the correct word; engine - reference to the PuzzleEngine.
+// What the inputs are: p - reference to the Player; r - reference to the Room; engine - reference to the PuzzleEngine.
 // What the outputs are: Returns true if the player answers correctly, false otherwise.
-bool runAnagramPuzzle(Player& p, const std::string& answer, PuzzleEngine& engine);
+bool runAnagramPuzzle(Player& p, Room& r, PuzzleEngine& engine);
 
 // What it does: Runs the Caesar cipher puzzle: the player must decrypt the word.
-// What the inputs are: p - reference to the Player; answer - the correct word; engine - reference to the PuzzleEngine.
+// What the inputs are: p - reference to the Player; r - reference to the Room; engine - reference to the PuzzleEngine.
 // What the outputs are: Returns true if the player answers correctly, false otherwise.
-bool runCaesarPuzzle(Player& p, const std::string& answer, PuzzleEngine& engine);
+bool runCaesarPuzzle(Player& p, Room& r, PuzzleEngine& engine);
 
 // What it does: Runs the substitution cipher puzzle: the player must decrypt the word.
-// What the inputs are: p - reference to the Player; answer - the correct word; engine - reference to the PuzzleEngine.
+// What the inputs are: p - reference to the Player; r - reference to the Room; engine - reference to the PuzzleEngine.
 // What the outputs are: Returns true if the player answers correctly, false otherwise.
-bool runSubstitutionPuzzle(Player& p, const std::string& answer, PuzzleEngine& engine);
+bool runSubstitutionPuzzle(Player& p, Room& r, PuzzleEngine& engine);
 
 // What it does: Runs the hangman puzzle: the player guesses letters until the word is complete.
-// What the inputs are: p - reference to the Player; answer - the word to guess.
+// What the inputs are: p - reference to the Player; r - reference to the Room.
 // What the outputs are: Returns true if the player completes the word, false if they exceed wrong guesses.
-bool runHangmanPuzzle(Player& p, const std::string& answer);
+bool runHangmanPuzzle(Player& p, Room& r);
 
 // What it does: Runs the riddle puzzle: the player answers a riddle.
-// What the inputs are: p - reference to the Player; engine - reference to the PuzzleEngine (provides the riddle).
+// What the inputs are: p - reference to the Player; r - reference to the Room; engine - reference to the PuzzleEngine (provides the riddle).
 // What the outputs are: Returns true if the player answers correctly, false otherwise.
-bool runRiddlePuzzle(Player& p, PuzzleEngine& engine);
+bool runRiddlePuzzle(Player& p, Room& r, PuzzleEngine& engine);
 
 // What it does: Runs the word chain puzzle: the player provides a middle word that differs by one letter.
-// What the inputs are: p - reference to the Player; answer - the target word (used for the start and end of the chain); engine - reference to the PuzzleEngine.
+// What the inputs are: p - reference to the Player; r - reference to the Room (including answer used for the start and end of the chain); engine - reference to the PuzzleEngine.
 // What the outputs are: Returns true if the chain is valid, false otherwise.
-bool runWordChainPuzzle(Player& p, const std::string& answer, PuzzleEngine& engine);
+bool runWordChainPuzzle(Player& p, Room& r, PuzzleEngine& engine);
 
 // What it does: Runs the speed round puzzle: the player must unscramble a word within a time limit.
-// What the inputs are: p - reference to the Player; answer - the correct word; engine - reference to the PuzzleEngine; timeLimit - seconds allowed.
+// What the inputs are: p - reference to the Player; r - reference to the Room; engine - reference to the PuzzleEngine; timeLimit - seconds allowed.
 // What the outputs are: Returns true if solved in time, false otherwise.
-bool runSpeedRound(Player& p, const std::string& answer, PuzzleEngine& engine, int timeLimit);
+bool runSpeedRound(Player& p, Room& r, PuzzleEngine& engine, int timeLimit);
 
 // ===== Hint & Inventory Helpers =====
 

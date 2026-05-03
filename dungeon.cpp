@@ -66,21 +66,18 @@ Room DungeonGenerator::generateRoom(int floorNumber, int roomID, RoomType type, 
     if (type == RoomType::BOSS) {
         r.category = "Boss";
         int bossLevel = (chosenDifficulty < 3) ? (chosenDifficulty + 1) : 3; // give one boss word, difficulty = chosen + 1 if hard still = 3
-        r.answer = getRandomWord(bossLevel);
         r.puzzleData = "BOSS_FIGHT";
         return r;
     }
 
     if (type == RoomType::TREASURE) {
         r.category = "Treasure";
-        r.answer = "";
         r.puzzleData = "TREASURE";
         return r;
     }
 
     if (type == RoomType::RIDDLE) {
         r.category = "Riddle";
-        r.answer = "";
         r.puzzleData = "RIDDLE";
     } else {
         r.category = "Puzzle";

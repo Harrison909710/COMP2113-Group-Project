@@ -183,6 +183,10 @@ void saveGameState(const Player& p, const Floor& f)
         return;
     }
 
+    if (p.hp <= 0) {
+        return; 
+    }
+
     fout << p.name << endl;
     fout << p.hp << " "
          << p.maxHp << " "

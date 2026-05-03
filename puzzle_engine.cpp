@@ -97,6 +97,7 @@ bool PuzzleEngine::isSingleLetterChange(const string& word1, const string& word2
         }
     }
     return differences == 1;
+}
 
 // get random riddle 
 PuzzleEngine::Riddle PuzzleEngine::getRandomRiddle() {

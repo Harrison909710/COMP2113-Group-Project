@@ -75,9 +75,9 @@ void useHint(Player& p, Room& r, int tier) {
 }
 // What it does: Uses an item from the player's inventory, applying its effect and removing it.
 //               Prints an error if the player does not have the specified item.
-// Input: p - reference to the Player using the item; item - the ItemType to use
+// Input: p - reference to the Player using the item; item - the ItemType to use; r - reference to the current Room
 // Output: none (modifies player state and inventory, prints result to console)
-void useItem(Player& p, ItemType item) {
+void useItem(Player& p, ItemType item, Room& r) {
 
     auto it = std::find_if(
         p.inventory.begin(), p.inventory.end(),
@@ -103,17 +103,29 @@ void useItem(Player& p, ItemType item) {
             std::cout << "  [FREEZE] Timer frozen for 15 seconds!\n";
             break;
 
-        case ItemType::REVEAL:
-            std::cout << "  [REVEAL] 2 letters will be revealed!\n";
+        case ItemType::REVEAL:{
+            std::string lastTwo = r.answer.substr(r.answer.length() - 2);
+            std::cout << "  [REVEAL] The last 2 letters are: " << lastTwo << "\n";
             break;
+        }
 
         case ItemType::SKIP_TOKEN:
-            std::cout << "  [SKIP] Puzzle skipped! No score for this room.\n";
+            if (r.type == RoomType::BOSS) {
+                std::cout << "  [!] The Boss is too powerful! Skip Token has no effect here.\n";
+                return; 
+            } else {
+                r.isCleared = true;
+                std::cout << "  [SKIP] Puzzle skipped! No score for this room.\n";
+            }
             break;
 
         case ItemType::DICTIONARY_SCROLL:
-            std::cout << "  [SCROLL] The word is a: ";
-            std::cout << "(category revealed by puzzle engine)\n";
+            if (r.answer.length() <= 4) 
+                std::cout << "[SCROLL] This is a very short word!\n";
+            else if (r.answer.length() >= 8)
+                std::cout << "[SCROLL] This is a long and complex word!\n";
+            else
+                std::cout << "[SCROLL] This word has " << r.answer.length() << " letters.\n";
             break;
     }
 

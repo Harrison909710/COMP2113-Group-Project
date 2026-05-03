@@ -75,9 +75,9 @@ void useHint(Player& p, Room& r, int tier);
 
 // What it does: Uses an item from the player's inventory, applies its effect, then removes it.
 //               Prints an error message if the specified item is not in the inventory.
-// Input: p - reference to the Player using the item; item - the ItemType to use
+// Input: p - reference to the Player using the item; item - the ItemType to use; r - reference to the current Room
 // Output: none (modifies player state and inventory, prints result to console)
-void useItem(Player& p, ItemType item);
+void useItem(Player& p, ItemType item, Room& r);
 
 // What it does: Checks whether the player's HP has reached 0 or below.
 // Input: p - const reference to the Player to check
