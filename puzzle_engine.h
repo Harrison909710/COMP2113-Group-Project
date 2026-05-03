@@ -11,15 +11,35 @@ public:
     explicit PuzzleEngine();
     ~PuzzleEngine() = default;
 
+    // What it does: Shuffles the letters of a word to produce a scrambled anagram.
+    // Input: word - the original word to scramble.
+    // Output: returns a new string with the same letters in a random order.
+
     std::string generateAnagram(const std::string& word);
+  
+    // What it does: Checks whether the attempt is a valid anagram of the original word.
+    // Input: original - the correct word; attempt - the player's guess.
+    // Output: returns true if both strings contain the same letters, false otherwise.
 
     bool validateAnagram(const std::string& original, const std::string& attempt);
 
+    // What it does: Encrypts or decrypts a string using the Caesar cipher with the given shift.
+    // Input: text - the string to process; shift - number of positions to shift;
+    //        encrypt - true to encrypt, false to decrypt.
+    // Output: returns the resulting string after applying the cipher.
     std::string caesarCipher(const std::string& text, int shift, bool encrypt);
     
     void generateSubstitutionMap();
 
+    // What it does: Applies the substitution cipher to a string using substitution_map_.
+    // Input: text - the original string to encode.
+    // Output: returns the encoded string with substituted characters.
+
     std::string substitutionCipher(const std::string& text);
+   
+    // What it does: Validates that each consecutive pair of words in the chain differs by exactly one letter.
+    // Input: chain - a vector of strings representing the word chain.
+    // Output: returns true if every adjacent pair is a single-letter change, false otherwise.
 
     bool validateWordChain(const std::vector<std::string>& chain);
 
@@ -70,7 +90,9 @@ private:
 };
 
     void initializeRNG();
-
+    // What it does: Checks whether two words of equal length differ by exactly one character.
+    // Input: word1 - the first word; word2 - the second word.
+    // Output: returns true if the words differ by exactly one letter, false otherwise.
     bool isSingleLetterChange(const std::string& word1, const std::string& word2);
 };
 
